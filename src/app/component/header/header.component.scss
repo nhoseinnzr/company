@@ -1,0 +1,8 @@
+.nav-item{
+  &.active{
+    a{
+      color: #1f64fd;
+      font-weight: 700;
+    }
+  }
+}
