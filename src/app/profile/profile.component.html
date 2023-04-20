@@ -1,0 +1,36 @@
+<div class="container p-5">
+
+  <div class="row">
+    <div class="col-12 col-md-7 col-lg-5 col-xl-4 mx-auto">
+
+      <div class="profile-box">
+        <div class="head">
+          <img [src]="this.profileInformation?.imgUrl" alt=""/>
+
+          <h2 class="full-name">{{this.profileInformation?.fullName}}</h2>
+
+        </div>
+
+        <div class="information">
+
+          <ul>
+            <li><span>ID:</span>  <span>{{this.profileInformation?.id}}</span></li>
+            <li><span>Email:</span>  <span>{{this.profileInformation?.email}}</span></li>
+            <li><span>Phone:</span>  <span>{{this.profileInformation?.phone}}</span></li>
+            <li><span>Country:</span>  <span>{{this.profileInformation?.country}}</span></li>
+            <li><span>Owner:</span>  <span>{{this.profileInformation?.owner}}</span></li>
+            <li><span>Type:</span>  <span>{{this.profileInformation?.type}}</span></li>
+            <li><span>Description:</span>  <span>{{this.profileInformation?.description}}</span></li>
+          </ul>
+
+        </div>
+
+
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
