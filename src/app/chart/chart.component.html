@@ -54,6 +54,19 @@
         </div>
       </div>
 
+      <div class="setting">
+        <h3>Color & FontSize</h3>
+        <div class="checkbox">
+          <span>Color</span>
+          <input type="text" placeholder="like #ccc" [(ngModel)]="colorCode" (ngModelChange)="setColor()">
+        </div>
+        <div class="checkbox">
+          <span>Font Size</span>
+          <input type="text" placeholder="like 14px" [(ngModel)]="fontSize" (ngModelChange)="setFontSize()">
+        </div>
+
+      </div>
+
 
 
     </div>

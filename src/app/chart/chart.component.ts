@@ -2,7 +2,15 @@ import {AfterViewInit, Component, ElementRef, Inject, NgZone, PLATFORM_ID, ViewC
 import * as am5 from "@amcharts/amcharts5";
 import * as am5xy from "@amcharts/amcharts5/xy";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
+import am5themes_Dark from "@amcharts/amcharts5/themes/Dark";
+import am5themes_Micro from "@amcharts/amcharts5/themes/Micro";
+import am5themes_Dataviz from "@amcharts/amcharts5/themes/Dataviz";
+import am5themes_Kelly from "@amcharts/amcharts5/themes/Kelly";
+import am5themes_Frozen from "@amcharts/amcharts5/themes/Frozen";
+import am5themes_Spirited from "@amcharts/amcharts5/themes/Spirited";
+import am5themes_Moonrise from "@amcharts/amcharts5/themes/Moonrise";
 import {isPlatformBrowser} from "@angular/common";
+import {Theme} from "@amcharts/amcharts5";
 
 @Component({
   selector: 'app-chart',
@@ -16,6 +24,9 @@ export class ChartComponent implements AfterViewInit {
   cursorBehavior: any = "zoomX";
   chart: any;
   root2: any;
+  colorCode!:string;
+  public myTheme!: Theme;
+  fontSize: any;
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object, private zone: NgZone) {
 
@@ -58,43 +69,80 @@ export class ChartComponent implements AfterViewInit {
 
   }
 
+  setColor(){
+    this.myTheme.rule("Label").setAll({
+      fill: am5.color(this.colorCode),
+    });
+
+  }
+  setFontSize(){
+    this.myTheme.rule("Label").setAll({
+      fontSize: this.fontSize
+    });
+  }
+
+
   createChart() {
     if (this.root) {
       this.root.dispose();
     }
     this.browserOnly(() => {
       let root = am5.Root.new("chartdiv");
+      const myTheme = am5.Theme.new(root);
+      myTheme.rule("Label").setAll({
+        fill: am5.color("#ccc"),
+        fontSize: "14px"
+      });
+      this.myTheme = myTheme;
+      root.setThemes([
+        am5themes_Animated.new(root),
+        myTheme
 
-      root.setThemes([am5themes_Animated.new(root)]);
+      ]);
 
-      let chart = root.container.children.push(
-        am5xy.XYChart.new(root, {
-          panY: false,
-          wheelX: this.wheelX,
-          wheelY: this.wheelY,
-          layout: root.verticalLayout
+      var chart = root.container.children.push(am5xy.XYChart.new(root, {
+        panX: false,
+        panY: false,
+        wheelX: "panX",
+        wheelY: "zoomX",
+        layout: root.verticalLayout
+
+      }));
+
+      var legend = chart.children.push(
+        am5.Legend.new(root, {
+          centerX: am5.p50,
+          x: am5.p50
         })
       );
 
-
       // Define data
-      let data = [
+      var data = [
         {
-          category: "Research",
-          value1: 1000,
-          value2: 588
-        },
-        {
-          category: "Marketing",
-          value1: 1200,
-          value2: 1800
-        },
-        {
-          category: "Sales",
-          value1: 850,
-          value2: 1230
-        }
-      ];
+        "year": "2021",
+        "europe": 2.5,
+        "namerica": 2.5,
+        "asia": 2.1,
+        "lamerica": 1,
+        "meast": 0.8,
+        "africa": 0.4
+      }, {
+        "year": "2022",
+        "europe": 2.6,
+        "namerica": 2.7,
+        "asia": 2.2,
+        "lamerica": 0.5,
+        "meast": 0.4,
+        "africa": 0.3
+      }, {
+        "year": "2023",
+        "europe": 2.8,
+        "namerica": 2.9,
+        "asia": 2.4,
+        "lamerica": 0.3,
+        "meast": 0.9,
+        "africa": 0.5
+      }]
 
       // Create Y-axis
       let yAxis = chart.yAxes.push(
@@ -107,47 +155,69 @@ export class ChartComponent implements AfterViewInit {
       let xAxis = chart.xAxes.push(
         am5xy.CategoryAxis.new(root, {
           renderer: am5xy.AxisRendererX.new(root, {}),
-          categoryField: "category"
+          categoryField: "year",
+          tooltip: am5.Tooltip.new(root, {})
+
         })
       );
       xAxis.data.setAll(data);
+      function makeSeries(name:string, fieldName:string) {
+        let series = chart.series.push(am5xy.ColumnSeries.new(root, {
+          name: name,
+          xAxis: xAxis,
+          yAxis: yAxis,
+          valueYField: fieldName,
+          categoryXField: "year"
+        }));
+
+        series.columns.template.setAll({
+          tooltipText: "{name}, {categoryX}:{valueY}",
+          width: am5.percent(90),
+          tooltipY: 0,
+          strokeOpacity: 0
+        });
+
+        series.data.setAll(data);
+
+        // Make stuff animate on load
+        // https://www.amcharts.com/docs/v5/concepts/animations/
+        series.appear();
+
+        series.bullets.push(function() {
+          return am5.Bullet.new(root, {
+            locationY: 0,
+            sprite: am5.Label.new(root, {
+              text: "{valueY}",
+              fill: root.interfaceColors.get("alternativeText"),
+              centerY: 0,
+              centerX: am5.p50,
+              populateText: true
+            })
+          });
+        });
+
+        legend.data.push(series);
+      }
+      makeSeries("Europe", "europe");
+      makeSeries("North America", "namerica");
+      makeSeries("Asia", "asia");
+      makeSeries("Latin America", "lamerica");
+      makeSeries("Middle East", "meast");
+      makeSeries("Africa", "africa");
 
       // Create series
-      let series1 = chart.series.push(
-        am5xy.ColumnSeries.new(root, {
-          name: "Series",
-          xAxis: xAxis,
-          yAxis: yAxis,
-          valueYField: "value1",
-          categoryXField: "category"
-        })
-      );
-      series1.data.setAll(data);
 
-      let series2 = chart.series.push(
-        am5xy.ColumnSeries.new(root, {
-          name: "Series",
-          xAxis: xAxis,
-          yAxis: yAxis,
-          valueYField: "value2",
-          categoryXField: "category"
-        })
-      );
-      series2.data.setAll(data);
-      series2.columns.template.events.on("click", function (ev) {
-        console.log("Clicked on a column", ev.target);
-      });
-      // Add legend
-      let legend = chart.children.push(am5.Legend.new(root, {}));
-      legend.data.setAll(chart.series.values);
+
+
 
       // Add cursor
       chart.set("cursor", am5xy.XYCursor.new(root, {
         behavior: "zoomY",
       }));
-
+      chart.appear(1000, 100);
       this.root = root;
       this.chart = chart
+
     });
   }
 
