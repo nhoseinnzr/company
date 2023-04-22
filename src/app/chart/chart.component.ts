@@ -93,7 +93,7 @@ export class ChartComponent implements AfterViewInit ,OnInit {
         panX: false,
         panY: false,
         wheelX: this.formGroup.get('wheelX')?.value,
-        wheelY: this.formGroup.get('whellY')?.value,
+        wheelY: this.formGroup.get('wheelY')?.value,
         layout: root.verticalLayout
 
       }));
@@ -217,7 +217,7 @@ export class ChartComponent implements AfterViewInit ,OnInit {
 
       // Add cursor
       chart.set("cursor", am5xy.XYCursor.new(root, {
-        behavior: "zoomY",
+        behavior:this.formGroup.get('cursor')?.value,
       }));
       chart.appear(1000, 100);
       this.root = root;
