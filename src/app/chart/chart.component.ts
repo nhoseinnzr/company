@@ -1,34 +1,31 @@
-import {AfterViewInit, Component, ElementRef, Inject, NgZone, PLATFORM_ID, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Inject, NgZone, OnInit, PLATFORM_ID, ViewChild} from '@angular/core';
 import * as am5 from "@amcharts/amcharts5";
 import * as am5xy from "@amcharts/amcharts5/xy";
 import am5themes_Animated from "@amcharts/amcharts5/themes/Animated";
-import am5themes_Dark from "@amcharts/amcharts5/themes/Dark";
-import am5themes_Micro from "@amcharts/amcharts5/themes/Micro";
-import am5themes_Dataviz from "@amcharts/amcharts5/themes/Dataviz";
-import am5themes_Kelly from "@amcharts/amcharts5/themes/Kelly";
-import am5themes_Frozen from "@amcharts/amcharts5/themes/Frozen";
-import am5themes_Spirited from "@amcharts/amcharts5/themes/Spirited";
-import am5themes_Moonrise from "@amcharts/amcharts5/themes/Moonrise";
 import {isPlatformBrowser} from "@angular/common";
 import {Theme} from "@amcharts/amcharts5";
+import {FormBuilder, FormControl, FormGroup} from "@angular/forms";
 
 @Component({
   selector: 'app-chart',
   templateUrl: './chart.component.html',
   styleUrls: ['./chart.component.scss']
 })
-export class ChartComponent implements AfterViewInit {
+export class ChartComponent implements AfterViewInit ,OnInit {
   private root!: am5.Root;
-  wheelY: any = "zoomX";
-  wheelX: any = "panX";
-  cursorBehavior: any = "zoomX";
-  chart: any;
-  root2: any;
-  colorCode!:string;
+  wheelY: "zoomX" | "panX" | "panY" | "zoomY" | "zoomXY" | "panXY" | "none" | undefined = "zoomX";
+  wheelX: "zoomX" | "panX" | "panY" | "zoomY" | "zoomXY" | "panXY" | "none" | undefined = "panX";
+  cursorBehavior: "zoomX" | "zoomY" | "zoomXY" | "none" | "selectX" | "selectY" | "selectXY" | undefined = "zoomX";
+  chart!: am5xy.XYChart;
+  colorCode!: string;
   public myTheme!: Theme;
-  fontSize: any;
+  fontSize: string | number | undefined;
+  seriesVal!: am5xy.ColumnSeries;
+  formGroup!: FormGroup;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object, private zone: NgZone) {
+  constructor(@Inject(PLATFORM_ID) private platformId: Object,
+              private fb: FormBuilder,
+              private zone: NgZone) {
 
   }
 
@@ -40,46 +37,38 @@ export class ChartComponent implements AfterViewInit {
     }
   }
 
+  ngOnInit() {
+    this.formGroup = new FormGroup({
+      wheelX: new FormControl('zoomX'),
+      wheelY: new FormControl('zoomX'),
+      cursor: new FormControl('zoomX'),
+      scrollbar: new FormControl('horizontal'),
+      color: new FormControl("#000"),
+      fontSize: new FormControl('14px'),
+      title: new FormGroup({
+        titleText: new FormControl('This is chart Title'),
+        fontSize: new FormControl(40),
+        fontWeight: new FormControl(30),
+        textAlign: new FormControl('left'),
+        paddingTop: new FormControl(10),
+        paddingBottom: new FormControl(10),
+      })
+
+    })
+  }
+
   ngAfterViewInit() {
     this.createChart();
   }
 
 
-  zoomWheel(e: any, type: string) {
-    if (type === 'X')
-      this.chart.set("wheelX", e.target.value);
-    else
-      this.chart.set("wheelY", e.target.value);
-  }
-
-  cursor(e: any) {
-    this.chart.set("cursor", am5xy.XYCursor.new(this.root, {
-      behavior: e.target.value,
-    }));
-  }
-
-  scrollbar(e: any) {
-    if (e.target.value === 'horizontal') {
-      this.chart.set("scrollbarX", am5.Scrollbar.new(this.root, {orientation: "horizontal"}));
-    }
-    if (e.target.value === 'vertical') {
-      this.chart.set("scrollbarY", am5.Scrollbar.new(this.root, {orientation: "vertical"}));
-    }
-
-
-  }
-
-  setColor(){
-    this.myTheme.rule("Label").setAll({
-      fill: am5.color(this.colorCode),
-    });
-
-  }
-  setFontSize(){
+  setFontSize() {
     this.myTheme.rule("Label").setAll({
       fontSize: this.fontSize
     });
   }
+
+
 
 
   createChart() {
@@ -90,8 +79,8 @@ export class ChartComponent implements AfterViewInit {
       let root = am5.Root.new("chartdiv");
       const myTheme = am5.Theme.new(root);
       myTheme.rule("Label").setAll({
-        fill: am5.color("#ccc"),
-        fontSize: "14px"
+        fill: am5.color(this.formGroup.get('color')?.value),
+        fontSize: this.formGroup.get('fontSize')?.value
       });
       this.myTheme = myTheme;
       root.setThemes([
@@ -100,59 +89,59 @@ export class ChartComponent implements AfterViewInit {
 
       ]);
 
-      var chart = root.container.children.push(am5xy.XYChart.new(root, {
+      let chart = root.container.children.push(am5xy.XYChart.new(root, {
         panX: false,
         panY: false,
-        wheelX: "panX",
-        wheelY: "zoomX",
+        wheelX: this.formGroup.get('wheelX')?.value,
+        wheelY: this.formGroup.get('whellY')?.value,
         layout: root.verticalLayout
 
       }));
 
-      var legend = chart.children.push(
+      let legend = chart.children.push(
         am5.Legend.new(root, {
           centerX: am5.p50,
           x: am5.p50
         })
       );
       chart.children.unshift(am5.Label.new(root, {
-        text: "This is a chart title",
-        fontSize: 30,
-        fontWeight: "500",
-        textAlign: "center",
+        text: this.formGroup.get('title.titleText')?.value,
+        fontSize: +this.formGroup.get('title.fontSize')?.value,
+        fontWeight: this.formGroup.get('title.fontWeight')?.value,
+        textAlign: this.formGroup.get('title.textAlign')?.value,
         x: am5.percent(50),
         centerX: am5.percent(50),
-        paddingTop: 10,
-        paddingBottom: 10,
+        paddingTop: +this.formGroup.get('title.paddingTop')?.value,
+        paddingBottom: +this.formGroup.get('title.paddingBottom')?.value,
       }));
 
       // Define data
-      var data = [
+      let data = [
         {
-        "year": "2021",
-        "europe": 2.5,
-        "namerica": 2.5,
-        "asia": 2.1,
-        "lamerica": 1,
-        "meast": 0.8,
-        "africa": 0.4
-      }, {
-        "year": "2022",
-        "europe": 2.6,
-        "namerica": 2.7,
-        "asia": 2.2,
-        "lamerica": 0.5,
-        "meast": 0.4,
-        "africa": 0.3
-      }, {
-        "year": "2023",
-        "europe": 2.8,
-        "namerica": 2.9,
-        "asia": 2.4,
-        "lamerica": 0.3,
-        "meast": 0.9,
-        "africa": 0.5
-      }]
+          "year": "2021",
+          "europe": 2.5,
+          "namerica": 2.5,
+          "asia": 2.1,
+          "lamerica": 1,
+          "meast": 0.8,
+          "africa": 0.4
+        }, {
+          "year": "2022",
+          "europe": 2.6,
+          "namerica": 2.7,
+          "asia": 2.2,
+          "lamerica": 0.5,
+          "meast": 0.4,
+          "africa": 0.3
+        }, {
+          "year": "2023",
+          "europe": 2.8,
+          "namerica": 2.9,
+          "asia": 2.4,
+          "lamerica": 0.3,
+          "meast": 0.9,
+          "africa": 0.5
+        }]
 
       // Create Y-axis
       let yAxis = chart.yAxes.push(
@@ -171,29 +160,36 @@ export class ChartComponent implements AfterViewInit {
         })
       );
       xAxis.data.setAll(data);
-      function makeSeries(name:string, fieldName:string) {
+      const makeSeries = (name: string, fieldName: string): any => {
         let series = chart.series.push(am5xy.ColumnSeries.new(root, {
           name: name,
           xAxis: xAxis,
           yAxis: yAxis,
           valueYField: fieldName,
-          categoryXField: "year"
+          categoryXField: "year",
+
         }));
+
 
         series.columns.template.setAll({
           tooltipText: "{name}, {categoryX}:{valueY}",
           width: am5.percent(90),
           tooltipY: 0,
-          strokeOpacity: 0
+          strokeOpacity: 1,
+          strokeWidth: 2,
+          fillOpacity: 0.5,
+          stroke: am5.color(0x000000),
         });
+
 
         series.data.setAll(data);
 
         // Make stuff animate on load
-        // https://www.amcharts.com/docs/v5/concepts/animations/
+
+
         series.appear();
 
-        series.bullets.push(function() {
+        series.bullets.push(function () {
           return am5.Bullet.new(root, {
             locationY: 0,
             sprite: am5.Label.new(root, {
@@ -205,6 +201,7 @@ export class ChartComponent implements AfterViewInit {
             })
           });
         });
+        this.seriesVal = series;
 
         legend.data.push(series);
       }
@@ -216,8 +213,6 @@ export class ChartComponent implements AfterViewInit {
       makeSeries("Africa", "africa");
 
       // Create series
-
-
 
 
       // Add cursor

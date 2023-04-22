@@ -3,71 +3,101 @@
   <div class="row">
 
     <div class="col-md-4">
-      <div class="setting">
-        <h3>Zoom and pan</h3>
-        <div class="checkbox">
-          <span>WheelX</span>
-          <select (change)="zoomWheel($event , 'X')">
-            <option value="zoomX">zoomX</option>
-            <option value="zoomY">zoomY</option>
-            <option value="zoomXY">zoomXY</option>
-            <option value="panX">panX</option>
-            <option value="panY">panY</option>
-            <option value="panXY">panXY</option>
-            <option value="none">none</option>
-          </select>
-        </div>
-        <div class="checkbox">
-          <span>WheelY</span>
-          <select (change)="zoomWheel($event , 'y')">
-            <option value="zoomX">zoomX</option>
-            <option value="zoomY">zoomY</option>
-            <option value="zoomXY">zoomXY</option>
-            <option value="panX">panX</option>
-            <option value="panY">panY</option>
-            <option value="panXY">panXY</option>
-            <option value="none">none</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="setting">
-        <h3>Cursor</h3>
-        <div class="checkbox">
-          <span>behavior</span>
-          <select (change)="cursor($event)">
-            <option value="zoomX">zoomX</option>
-            <option value="zoomY">zoomY</option>
-            <option value="zoomXY">zoomXY</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="setting">
-        <h3>Scrollbars</h3>
-        <div class="checkbox">
-          <span>Adding scrollbars</span>
-          <select (change)="scrollbar($event )">
-            <option value="horizontal">horizontal</option>
-            <option value="vertical">vertical</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="setting">
-        <h3>Color & FontSize</h3>
-        <div class="checkbox">
-          <span>Color</span>
-          <input type="text" placeholder="like #ccc" [(ngModel)]="colorCode" (ngModelChange)="setColor()">
-        </div>
-        <div class="checkbox">
-          <span>Font Size</span>
-          <input type="text" placeholder="like 14px" [(ngModel)]="fontSize" (ngModelChange)="setFontSize()">
+      <form [formGroup]="formGroup" (ngSubmit)="createChart()">
+        <div class="setting">
+          <h3>Zoom and pan</h3>
+          <div class="checkbox">
+            <span>WheelX</span>
+            <select formControlName="wheelX">
+              <option value="zoomX">zoomX</option>
+              <option value="zoomY">zoomY</option>
+              <option value="zoomXY">zoomXY</option>
+              <option value="panX">panX</option>
+              <option value="panY">panY</option>
+              <option value="panXY">panXY</option>
+              <option value="none">none</option>
+            </select>
+          </div>
+          <div class="checkbox">
+            <span>WheelY</span>
+            <select formControlName="wheelY">
+              <option value="zoomX">zoomX</option>
+              <option value="zoomY">zoomY</option>
+              <option value="zoomXY">zoomXY</option>
+              <option value="panX">panX</option>
+              <option value="panY">panY</option>
+              <option value="panXY">panXY</option>
+              <option value="none">none</option>
+            </select>
+          </div>
         </div>
 
-      </div>
+        <div class="setting">
+          <h3>Cursor</h3>
+          <div class="checkbox">
+            <span>behavior</span>
+            <select formControlName="cursor">
+              <option value="zoomX">zoomX</option>
+              <option value="zoomY">zoomY</option>
+              <option value="zoomXY">zoomXY</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="setting">
+          <h3>Scrollbars</h3>
+          <div class="checkbox">
+            <span>Adding scrollbars</span>
+            <select formControlName="scrollbar">
+              <option value="horizontal">horizontal</option>
+              <option value="vertical">vertical</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="setting">
+          <h3>Color & FontSize</h3>
+          <div class="checkbox">
+            <span>Color</span>
+            <input formControlName="color" type="text" placeholder="like #ccc">
+          </div>
+          <div class="checkbox">
+            <span>Font Size</span>
+            <input formControlName="fontSize" type="text" placeholder="like 14px">
+          </div>
 
 
+        </div>
+
+        <div class="setting" formGroupName="title">
+          <h3>Title style</h3>
+          <div class="checkbox">
+            <span>Text</span>
+            <input type="text" formControlName="titleText">
+          </div>
+          <div class="checkbox">
+            <span>font size</span>
+            <input type="text" formControlName="fontSize">
+          </div>
+          <div class="checkbox">
+            <span>font weight</span>
+            <input type="text" formControlName="fontWeight">
+          </div>
+
+          <div class="checkbox">
+            <span>padding top</span>
+            <input type="text" formControlName="paddingTop">
+          </div>
+          <div class="checkbox">
+            <span>padding bottom</span>
+            <input type="text" formControlName="paddingBottom">
+          </div>
+        </div>
+
+        <div class="btn">
+          <button type="submit">Send</button>
+        </div>
+      </form>
 
     </div>
     <div class="col-md-8">
