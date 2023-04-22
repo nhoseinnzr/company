@@ -115,6 +115,16 @@ export class ChartComponent implements AfterViewInit {
           x: am5.p50
         })
       );
+      chart.children.unshift(am5.Label.new(root, {
+        text: "This is a chart title",
+        fontSize: 30,
+        fontWeight: "500",
+        textAlign: "center",
+        x: am5.percent(50),
+        centerX: am5.percent(50),
+        paddingTop: 10,
+        paddingBottom: 10,
+      }));
 
       // Define data
       var data = [
